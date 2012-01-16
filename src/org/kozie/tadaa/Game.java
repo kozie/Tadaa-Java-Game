@@ -13,6 +13,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import org.kozie.tadaa.entity.Player;
 import org.kozie.tadaa.gfx.Color;
 import org.kozie.tadaa.gfx.Screen;
 import org.kozie.tadaa.gfx.SpriteSheet;
@@ -23,9 +24,9 @@ public class Game extends Canvas implements Runnable {
 	private static final long serialVersionUID = 6764865459516958484L;
 
 	public static final String NAME = "Tadaa the game";
-	public static final int WIDTH = 160;
-	public static final int HEIGHT = 120;
-	public static final int SCALE = 4;
+	public static final int WIDTH = 210;
+	public static final int HEIGHT = 160;
+	public static final int SCALE = 3;
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -34,8 +35,10 @@ public class Game extends Canvas implements Runnable {
 	public int[] pallette = new int[256];
 
 	public InputListener input = new InputListener(this);
+	public int tickCount;
 	private boolean running = false;
-	private int tickCount;
+
+	public Player player = new Player(this);
 
 	public void start() {
 		running = true;
@@ -55,12 +58,17 @@ public class Game extends Canvas implements Runnable {
 					int rr = r * 255 / 5;
 					int gg = g * 255 / 5;
 					int bb = b * 255 / 5;
+					int mid = (rr * 30 + gg * 59 + bb * 11) / 100;
+
+					rr = (rr + mid) / 2;
+					gg = (gg + mid) / 2;
+					bb = (bb + mid) / 2;
 
 					pallette[pIndex++] = rr << 16 | gg << 8 | bb;
 				}
 			}
 		}
-		
+
 		try {
 			screen = new Screen(WIDTH, HEIGHT, new SpriteSheet(ImageIO.read(Game.class.getResourceAsStream("/sprites.png"))));
 		} catch (IOException e) {
@@ -75,6 +83,7 @@ public class Game extends Canvas implements Runnable {
 		long lastTime = System.nanoTime();
 		double unprocessed = 0;
 		double nsPerTick = 1000000000.0 / 60.0;
+
 		int frames = 0;
 		int ticks = 0;
 		long lastTimer = System.currentTimeMillis();
@@ -118,6 +127,8 @@ public class Game extends Canvas implements Runnable {
 
 		if (!hasFocus()) {
 			input.releaseAll();
+		} else {
+			player.tick();
 		}
 	}
 
@@ -129,12 +140,12 @@ public class Game extends Canvas implements Runnable {
 			return;
 		}
 
-		//for (int i = 0; i < pixels.length; i++) {
-		//	pixels[i] = i + tickCount;
-		//}
+		// for (int i = 0; i < pixels.length; i++) {
+		// pixels[i] = 0xFF;
+		// }
 
-		Graphics g = bs.getDrawGraphics();
-		g.fillRect(0, 0, getWidth(), getHeight());
+		screen.clear();
+		player.render();
 
 		if (!hasFocus()) renderFocusNote();
 
@@ -144,6 +155,9 @@ public class Game extends Canvas implements Runnable {
 				if (col < 255) pixels[x + y * WIDTH] = pallette[col];
 			}
 		}
+
+		Graphics g = bs.getDrawGraphics();
+		g.fillRect(0, 0, getWidth(), getHeight());
 
 		int w = WIDTH * SCALE;
 		int h = HEIGHT * SCALE;
@@ -158,13 +172,12 @@ public class Game extends Canvas implements Runnable {
 
 		// Blink text
 		int color = -1;
-		if ((tickCount / 50) % 2 == 0) color = 555;
-		
+		if ((tickCount / 40) % 2 == 0) color = 555;
+
 		String text = "Click to Focus";
 		int xs = (WIDTH - text.length() * 8) / 2;
 		int ys = (HEIGHT - 8) / 2;
-		
-		screen.clear();
+
 		Text.draw(text, xs, ys, screen, Color.get(-1, -1, -1, color));
 	}
 
