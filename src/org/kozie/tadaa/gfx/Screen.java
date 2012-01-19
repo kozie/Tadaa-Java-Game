@@ -31,13 +31,13 @@ public class Screen {
 		for (int yy = 0; yy < 8; yy++) {
 			int ys = yy;
 			if (mirrorY) ys = 7 - yy;
-			//if (y + ys < 0 || y + ys > height) continue;
+			if (y + ys < 0 || y + ys > height) continue;
 
 			for (int xx = 0; xx < 8; xx++) {
 				int xs = xx;
 				if (mirrorX) xs = 7 - xx;
 				
-				//if (x + xs < 0 || x + xs > width) continue;
+				if (x + xs < 0 || x + xs > width) continue;
 
 				int col = (colors >> (sheet.pixels[offset + xs + ys * sheet.width] * 8)) & 0xFF;
 				if (col < 255) pixels[(x + xx) + (y + yy) * width] = col;

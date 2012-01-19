@@ -1,4 +1,3 @@
-// 58
 package org.kozie.tadaa;
 
 import java.awt.BorderLayout;
@@ -127,9 +126,9 @@ public class Game extends Canvas implements Runnable {
 
 		if (!hasFocus()) {
 			input.releaseAll();
-		} else {
-			player.tick();
 		}
+		
+		player.tick();
 	}
 
 	public void render() {
