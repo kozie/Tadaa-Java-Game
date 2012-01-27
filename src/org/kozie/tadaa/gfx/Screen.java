@@ -46,6 +46,8 @@ public class Screen {
 	}
 	
 	public void clear() {
-		pixels = new int[width * height];
+		for (int i = 0; i < pixels.length; i++) {
+			pixels[i] = 0;
+		}
 	}
 }
